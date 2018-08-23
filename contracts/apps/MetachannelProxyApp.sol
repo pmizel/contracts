@@ -3,6 +3,8 @@ pragma experimental "ABIEncoderV2";
 
 import "../lib/Transfer.sol";
 import "../Registry.sol";
+import "../MetachannelMultisig.sol";
+
 
 /*
 Proxy Contract used to implement two-party metachannels
@@ -24,79 +26,61 @@ contract MetachannelProxyApp {
     returns (Transfer.Details)
   {
 
-    Registry registry = Registry(registryAddr);
+    Registry registry = Registry(state.registryAddr);
 
-    address observedAddr = registry.resolver(observedCfAddr);
+    address observedAddr = registry.resolver(state.observedCfAddr);
 
     MetachannelMultisig mm = MetachannelMultisig(observedAddr);
 
-    address[] memory to = new address[](1);
-    to[0] = mm.address;
-
-    uint256[] memory amounts = new uint256[](1);
-    amounts[0] = terms.limit;
-
     bytes memory data;
 
-    if (mm.balance(terms.assetType, term.token) == 0 && !(mm.isFinal())) {
+    if (mm.balance(terms) == 0 && !mm.isFinal()) {
       return Transfer.Details(
         terms.assetType,
         terms.token,
-        to,
-        amounts,
-        data;
+        Transfer.address1(observedAddr),
+        Transfer.uint256_1(terms.limit),
+        data
       );
     }
 
-    if (!(mm.isFinal() && now < state.deadline && mm.balance(terms.assetType, term.token) >= terms.limit)) {
+    if (!(mm.isFinal() && now < state.deadline && mm.balance(terms) >= terms.limit)) {
       revert();
     }
 
     if (mm.isFinal()) {
       uint256 a = mm.aBal();
 
-      uint256[] memory amounts = new uint256[](2);
-      amounts[0] = a;
-      amounts[1] = terms.limit - a;
-
       return Transfer.Details(
         terms.assetType,
         terms.token,
-        beneficiaries,
-        amounts,
-        abi.encode(beneficiaries[0]); // used to set sender
+        Transfer.address2(state.beneficiaries[0], state.beneficiaries[1]),
+        Transfer.uint256_2(a, terms.limit - a),
+        abi.encode(state.beneficiaries[0]) // used to set sender
       );
     }
 
-    if (!(mm.isFinal()) && now >= state.deadline && mm.balance(terms.assetType, term.token) >= terms.limit) {
+    if (!mm.isFinal() && now >= state.deadline && mm.balance(terms) >= terms.limit) {
       // assume addresses are ordered by <
 
-      uint256[] memory amounts = new uint256[](1);
-      amounts[0] = terms.limit;
-      address[] memory to = new address[](1);
-
       address mmSender = mm.sender();
-      if (beneficiaries[0] < mmSender) {
-
-        to[0] = beneficiaries[1];
+      if (state.beneficiaries[0] < mmSender) {
 
         return Transfer.Details(
           terms.assetType,
           terms.token,
-          beneficiaries,
-          amounts,
+          Transfer.address1(state.beneficiaries[1]),
+          Transfer.uint256_1(terms.limit),
           data
         );
       }
-      if (beneficiaries[0] > mmSender) {
-
-        to[0] = beneficiaries[0];
+      if (state.beneficiaries[0] > mmSender) {
 
         return Transfer.Details(
           terms.assetType,
           terms.token,
-          beneficiaries,
-          amounts,
+          Transfer.address1(state.beneficiaries[0]),
+          Transfer.uint256_1(terms.limit),
           data
         );
       }

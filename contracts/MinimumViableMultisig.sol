@@ -16,7 +16,7 @@ contract MinimumViableMultisig {
   using Signatures for bytes;
 
   mapping(bytes32 => bool) isExecuted;
-  mapping (address => bool) isOwner;
+  mapping(address => bool) isOwner;
 
   address[] private _owners;
 

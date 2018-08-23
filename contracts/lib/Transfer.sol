@@ -32,6 +32,32 @@ library Transfer {
     bytes data;
   }
 
+  function uint256_1(uint256 a) public pure returns (uint256[]) {
+    uint256[] memory ret = new uint256[](2);
+    ret[0] = a;
+    return ret;
+  }
+
+  function uint256_2(uint256 a, uint256 b) public pure returns (uint256[]) {
+    uint256[] memory ret = new uint256[](2);
+    ret[0] = a;
+    ret[1] = b;
+    return ret;
+  }
+
+  function address1(address a) public pure returns (address[]) {
+    address[] memory ret = new address[](2);
+    ret[0] = a;
+    return ret;
+  }
+
+  function address2(address a, address b) public pure returns (address[]) {
+    address[] memory ret = new address[](2);
+    ret[0] = a;
+    ret[1] = b;
+    return ret;
+  }
+
   /// @notice A delegate target for executing transfers of an arbitrary Transfer.Detail
   /// @param details A `Transfer.Details` struct
   /// TODO: Add support for an OTHER Asset type and do a (to, value, data) CALL

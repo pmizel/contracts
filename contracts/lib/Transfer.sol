@@ -13,20 +13,23 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 /// should be able to encode any arbitrary Ethereum-based asset transfer.
 library Transfer {
 
-  enum Asset {
+  enum AssetType {
     ETH,
     ERC20
   }
 
-  struct Terms {
-    uint8 assetType;
-    uint256 limit;
+  struct Asset {
+    AssetType assetType;
     address token;
   }
 
+  struct Terms {
+    Asset asset;
+    uint256 limit;
+  }
+
   struct Details {
-    uint8 assetType;
-    address token;
+    Asset asset;
     address[] to;
     uint256[] amount;
     bytes data;

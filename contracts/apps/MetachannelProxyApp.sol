@@ -34,41 +34,38 @@ contract MetachannelProxyApp {
 
     bytes memory data;
 
-    if (mm.balance(terms) == 0 && !mm.isFinal()) {
+    if (mm.balance(terms.asset) == 0 && !mm.isFinal()) {
       return Transfer.Details(
-        terms.assetType,
-        terms.token,
+        terms.asset,
         Transfer.address1(observedAddr),
         Transfer.uint256_1(terms.limit),
         data
       );
     }
 
-    if (!(mm.isFinal() && now < state.deadline && mm.balance(terms) >= terms.limit)) {
+    if (!(mm.isFinal() && now < state.deadline && mm.balance(terms.asset) >= terms.limit)) {
       revert();
     }
 
     if (mm.isFinal()) {
-      uint256 a = mm.aBal();
+      uint256 a = mm.aBal(terms.asset);
 
       return Transfer.Details(
-        terms.assetType,
-        terms.token,
+        terms.asset,
         Transfer.address2(state.beneficiaries[0], state.beneficiaries[1]),
         Transfer.uint256_2(a, terms.limit - a),
         abi.encode(state.beneficiaries[0]) // used to set sender
       );
     }
 
-    if (!mm.isFinal() && now >= state.deadline && mm.balance(terms) >= terms.limit) {
+    if (!mm.isFinal() && now >= state.deadline && mm.balance(terms.asset) >= terms.limit) {
       // assume addresses are ordered by <
 
       address mmSender = mm.sender();
       if (state.beneficiaries[0] < mmSender) {
 
         return Transfer.Details(
-          terms.assetType,
-          terms.token,
+          terms.asset,
           Transfer.address1(state.beneficiaries[1]),
           Transfer.uint256_1(terms.limit),
           data
@@ -77,8 +74,7 @@ contract MetachannelProxyApp {
       if (state.beneficiaries[0] > mmSender) {
 
         return Transfer.Details(
-          terms.assetType,
-          terms.token,
+          terms.asset,
           Transfer.address1(state.beneficiaries[0]),
           Transfer.uint256_1(terms.limit),
           data

@@ -5,6 +5,10 @@ import "./lib/Signatures.sol";
 import "./lib/Transfer.sol";
 
 
+/*
+Uses https://github.com/zeppelinos/labs/blob/master/upgradeability_using_unstructured_storage/contracts/UpgradeabilityProxy.sol
+for the `aBal` "variable" to be accessible in contracts delegated to
+*/
 contract MetachannelMultisig {
 
   using Signatures for bytes;
@@ -28,6 +32,13 @@ contract MetachannelMultisig {
 
   function isFinal() public view returns (bool) {
     return (now > finalizesAt);
+  }
+
+  function aBal() public view returns (uint256 ret) {
+    bytes32 key = keccak256("org.counterfactual.MetachannelMultisig.aBal");
+    assembly {
+      ret := sload(key)
+    }
   }
 
 }

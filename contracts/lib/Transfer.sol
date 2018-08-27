@@ -48,6 +48,21 @@ library Transfer {
     }
   }
 
+
+  /// @notice A delegate target for MetachannelMultisig to call that
+  /// modifies storage based on Transfer.Detail
+  /// @param details A `Transfer.Details` struct
+  function executeTransferMM(Transfer.Details memory details) public {
+    // require(details.amounts.length == 1); wut
+    uint256 amount = details.amount[0];
+    require(details.assetType == uint8(Transfer.Asset.ETH));
+
+    bytes32 key = keccak256("org.counterfactual.MetachannelMultisig.aBal");
+    assembly {
+      sstore(key, amount)
+    }
+  }
+
   /// @notice Verifies whether or not a `Transfer.Details` meets the terms set by a
   /// `Transfer.Terms` object based on the limit information of how much can be transferred
   /// @param details A `Transfer.Details` struct

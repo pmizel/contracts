@@ -58,4 +58,36 @@ contract ConditionalTransfer is Conditional {
     details.executeTransfer();
   }
 
+  /// @notice Execute a fund transfer for a state channel in a finalized state
+  /// @param key The key in the nonce registry
+  /// @param expectedNonce The expected nonce in the nonce registry
+  /// @param channelCfAddress Counterfactual address of the state channel contract
+  /// @param terms The pre-agreed upon terms of the funds transfer
+  function executeStateChannelConditionalTransferMM(
+    address registry,
+    address nonceRegistry,
+    bytes32 key,
+    uint256 expectedNonce,
+    bytes32 channelCfAddress,
+    Transfer.Terms terms
+  )
+    public
+  {
+    require(
+      NonceRegistry(nonceRegistry).isFinalized(key, expectedNonce),
+      "State Channel nonce is either not finalized or finalized at an incorrect nonce"
+    );
+
+    address channelAddr = Registry(registry).resolver(channelCfAddress);
+    StateChannel channel = StateChannel(channelAddr);
+    Transfer.Details memory details = channel.getResolution();
+
+    require(
+      Transfer.meetsTerms(details, terms),
+      "Transfer details do not meet terms"
+    );
+
+    details.executeTransferMM();
+  }
+
 }

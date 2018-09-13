@@ -26,7 +26,7 @@ contract NonceRegistry {
   /// @param key A unique entry in the mapping, computed using `computeKey`
   /// @param expectedNonce The nonce that the key is expected to be finalized at
   /// @return A boolean referring to whether or not the key has been finalized at the nonce
-  function isFinalized(bytes32 key, uint256 expectedNonce)
+  function isFinalized(bytes32 key, uint256 expectedNonceValue)
     external
     view
     returns (bool)
@@ -36,8 +36,8 @@ contract NonceRegistry {
       "Nonce is not yet finalized"
     );
     require(
-      table[key].nonceValue == expectedNonce,
-      "Nonce is not equal to expectedNonce"
+      table[key].nonceValue == expectedNonceValue,
+      "Nonce value is not equal to expected nonce value"
     );
     return true;
   }

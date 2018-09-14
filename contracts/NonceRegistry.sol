@@ -24,7 +24,7 @@ contract NonceRegistry {
 
   /// @notice Determine whether a particular key has been set and finalized at a nonce
   /// @param key A unique entry in the mapping, computed using `computeKey`
-  /// @param expectedNonce The nonce that the key is expected to be finalized at
+  /// @param expectedNonceValue The nonce value that the key is expected to be finalized at
   /// @return A boolean referring to whether or not the key has been finalized at the nonce
   function isFinalized(bytes32 key, uint256 expectedNonceValue)
     external
@@ -44,7 +44,7 @@ contract NonceRegistry {
 
   /// @notice Set a nonce in the mapping and triggers the timeout period to begin
   /// @param salt A salt used to generate the nonce key
-  /// @param nonce A nonce at which to set the computed key's value in the mapping
+  /// @param nonceValue A nonce at which to set the computed key's value in the mapping
   function setNonce(uint256 timeout, bytes32 salt, uint256 nonceValue) external {
     bytes32 key = computeKey(msg.sender, timeout, salt);
     require(
@@ -56,7 +56,7 @@ contract NonceRegistry {
     );
     table[key].nonceValue = nonceValue;
     table[key].finalizesAt = block.number + timeout;
-    emit NonceSet(key, nonce);
+    emit NonceSet(key, nonceValue);
   }
 
   /// @notice Computes a unique key for the particular salt and msg.sender
